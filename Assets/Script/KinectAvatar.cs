@@ -140,7 +140,7 @@ public class KinectAvatar : MonoBehaviour
 
             // モデルの位置を移動する
             pos = body.Joints[JointType.SpineMid].Position;
-            Ref.transform.position = new Vector3(pos.X, pos.Y+0.45f, -pos.Z);
+            Ref.transform.localPosition = new Vector3(pos.X, pos.Y, -pos.Z);
         }
     }
 

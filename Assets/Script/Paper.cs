@@ -19,6 +19,7 @@ public class Paper : MonoBehaviour {
     void OnTriggerEnter(Collider other)
     {
         CollisionFlag = true;
+        //this.gameObject.transform.localScale = new Vector3(0.114f, 0.5f, 0.1f);
     }
 
     void OnTriggerStay(Collider other)
@@ -29,6 +30,7 @@ public class Paper : MonoBehaviour {
     void OnTriggerExit(Collider other)
     {
         CollisionFlag = false;
+        //this.gameObject.transform.localScale = new Vector3(0.114f, 0.1f, 0.1f);
     }
 
 }
