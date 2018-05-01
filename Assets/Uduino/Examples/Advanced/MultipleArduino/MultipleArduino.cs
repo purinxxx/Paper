@@ -4,9 +4,8 @@ using Uduino;
 
 public class MultipleArduino : MonoBehaviour
 {
-    UduinoManager u;
-    int sensorOne = 0;
-    int sensorTwo = 0;
+    UduinoDevice firstDevice;
+    UduinoDevice secondDevice;
 
     void Start()
     {
@@ -14,43 +13,61 @@ public class MultipleArduino : MonoBehaviour
         // but on the delegate function OnBoardConnected(). It should be called only if
         // you use several boards with the default Uduino arduino sketch.
         UduinoManager.Instance.OnBoardConnected += OnBoardConnected;
-        UduinoManager.Instance.OnValueReceived += OnValuesReceived;
     }
 
     void Update()
     {
         if (UduinoManager.Instance.hasBoardConnected())
         {
-            UduinoDevice firstDevice = UduinoManager.Instance.GetBoard("myArduinoName");
-            UduinoDevice secondDevice = UduinoManager.Instance.GetBoard("myOtherArduino");
-            UduinoManager.Instance.Read(firstDevice, "myVariable");
-            UduinoManager.Instance.Read(secondDevice, "mySensor");
-            Debug.Log(sensorOne);
-            Debug.Log(sensorTwo);
+            Debug.Log(firstDevice.name);
+            Debug.Log(secondDevice.name);
         }
     }
-
-    void OnValuesReceived(string data, UduinoDevice device)
-    {
-        if (device.name == "myArduinoName") sensorOne = int.Parse(data);
-        else if (device.name == "myOtherArduino") sensorTwo = int.Parse(data);
-    }
+    
 
     void OnBoardConnected(UduinoDevice connectedDevice)
     {
-        if (connectedDevice.name == "uduinoBoard")
+        if (connectedDevice.name == "FirstBoard")
         {
-            // Set the pinMode of the first board here.
-            //  UduinoManager.Instance.pinMode(connectedDevice, 13, PinMode.Input_pullup);
-            //
-            // You can also add extra settings : 
-            // connectedDevice.alwaysRead = false;
-            // connectedDevice.readTimeout = 50;
+            Debug.Log("First");
+            firstDevice = connectedDevice;
+            StartCoroutine("motor");
         }
-        else if (connectedDevice.name == "uduinoBoard2")
+        else if (connectedDevice.name == "SecondBoard")
         {
-            // Set the pinMode of the second board here.
-            //  UduinoManager.Instance.pinMode(connectedDevice, 12, PinMode.Output);
+            Debug.Log("Second");
+            secondDevice = connectedDevice;
+            StartCoroutine("motor2");
         }
     }
+
+    private IEnumerator motor()
+    {
+        yield return new WaitForSeconds(5.0f);
+        //firstDevice = UduinoManager.Instance.GetBoard("FirstBoard");
+        yield return new WaitForSeconds(1.0f);
+        UduinoManager.Instance.digitalWrite(firstDevice, 4, State.HIGH);
+        yield return new WaitForSeconds(1.0f);
+        UduinoManager.Instance.analogWrite(firstDevice, 9, 55);
+        yield return new WaitForSeconds(1.0f);
+        UduinoManager.Instance.digitalWrite(firstDevice, 8, State.HIGH);
+        yield return new WaitForSeconds(1.0f);
+        UduinoManager.Instance.digitalWrite(firstDevice, 7, State.LOW);
+        yield return new WaitForSeconds(1.0f);
+
+    }
+
+    private IEnumerator motor2()
+    {
+        yield return new WaitForSeconds(5.0f);
+        //secondDevice = UduinoManager.Instance.GetBoard("SecondBoard");
+        yield return new WaitForSeconds(1.0f);
+        UduinoManager.Instance.analogWrite(secondDevice, 9, 255);
+        yield return new WaitForSeconds(1.0f);
+        UduinoManager.Instance.digitalWrite(secondDevice, 8, State.LOW);
+        yield return new WaitForSeconds(1.0f);
+        UduinoManager.Instance.digitalWrite(secondDevice, 7, State.HIGH);
+        yield return new WaitForSeconds(1.0f);
+    }
+
 }

@@ -2,16 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PaperMaster : MonoBehaviour {
+public class PaperMaster : MonoBehaviour
+{
+    public int RotateRate = 100;   //モーターの回転率　0なら完全に引っ込めた状態、100なら床まで出し切った状態、-1なら巻取り続ける
 
     [SerializeField]
-    private int PinIN1; //接続されているピン番号
-    [SerializeField]
-    private int PinIN2; //接続されているピン番号
-    [SerializeField]
-    private int PinVREF; //接続されているピン番号
-    [SerializeField]
-    private int RotateRate = 100;   //モーターの回転率　0なら完全に引っ込めた状態、100なら床まで出し切った状態、-1なら巻取り続ける
+    private int motor; //接続されているモーター番号
     [SerializeField]
     private GameObject ArduinoMaster;
     [SerializeField]
@@ -57,7 +53,7 @@ public class PaperMaster : MonoBehaviour {
         if (RotateRate!=tmp)    //前フレームと値が変わっている場合
         {
             tmp = RotateRate;
-            ArduinoMaster.GetComponent<ArduinoMaster>().SendArduino(PinIN1, PinIN2, PinVREF, RotateRate);   //モーターを動かす情報を引数で渡す
+            ArduinoMaster.GetComponent<ArduinoMaster>().SendArduino(motor, RotateRate);   //モーターを動かす情報を引数で渡す
             if (RotateRate == 100)
             {
                 paper1.GetComponent<MeshRenderer>().enabled = true;
