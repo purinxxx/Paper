@@ -1,12 +1,7 @@
 fileFormatVersion: 2
-guid: 665d27f87ff468f47816a351edecf7e9
-labels:
-- Arduino
-- Serial
-- Uduino
-- Unity
-timeCreated: 1484326591
-licenseType: Store
+guid: 27a21b7cf51467948a30e5cd95597c33
+timeCreated: 1525191397
+licenseType: Free
 MonoImporter:
   serializedVersion: 2
   defaultReferences: []

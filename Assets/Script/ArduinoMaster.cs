@@ -21,7 +21,12 @@ public class ArduinoMaster : MonoBehaviour
 
     private int[] PrevRotateRate = new int[6];
     private GameObject[] papers = new GameObject[6];
+    [SerializeField]
+    [Range(0.1f, 2f)]
     private float speed = 0.1f;
+    private List<int> commands = new List<int>();
+    public bool moving = false;
+    private int cnt = 0;
 
     // Use this for initialization
     void Start ()
@@ -37,7 +42,7 @@ public class ArduinoMaster : MonoBehaviour
         {
             PrevRotateRate[i] = papers[i].GetComponent<PaperMaster>().RotateRate;
         }
-    
+        
     }
 
     // Update is called once per frame
@@ -45,11 +50,46 @@ public class ArduinoMaster : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.A))
         {
-            serialHandler.Write("0");
+            serialHandler.Write("11");
         }
         if (Input.GetKeyDown(KeyCode.S))
         {
-            serialHandler.Write("1");
+            serialHandler.Write("21");
+        }
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            serialHandler.Write("31");
+        }
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            serialHandler.Write("2541");
+        }
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            serialHandler.Write("25541");
+        }
+    }
+    void FixedUpdate()
+    {
+        cnt++;  //判定の回数をへらす
+        if (cnt % 30 == 0)
+        {
+            cnt = 0;
+            if (moving)
+            {
+
+            }
+            else
+            {
+                if (commands.Count > 0)
+                {
+                    foreach (int c in commands)
+                    {
+                        Debug.Log("commandList : " + c.ToString());
+                    }
+                    StartCoroutine(Send(commands));
+                }
+            }
         }
     }
 
@@ -57,29 +97,74 @@ public class ArduinoMaster : MonoBehaviour
     {
         if (RotateRate > PrevRotateRate[motor - 1])  //出す　正転
         {
-            float s = (RotateRate - PrevRotateRate[motor - 1]) / 25;
-            Debug.Log(s);
-            StartCoroutine(kaiten(1, motor, s*speed));
+            int s = Mathf.Abs((RotateRate - PrevRotateRate[motor - 1]) / 25);
+            //Debug.Log(s);
+            commands.Add(1 * 100 + motor * 10 + s);
         }
         else if (RotateRate < PrevRotateRate[motor - 1])  //巻き取る 逆転
         {
-            float s = (PrevRotateRate[motor - 1] - RotateRate) / 25;
-            Debug.Log(s);
-            StartCoroutine(kaiten(2, motor, s * speed));
+            int s = Mathf.Abs((PrevRotateRate[motor - 1] - RotateRate) / 25);
+            //Debug.Log(s);
+            commands.Add(2 * 100 + motor * 10 + s);
         }
-        PrevRotateRate[motor-1] = RotateRate;
-        Debug.Log(motor.ToString() + " : " + RotateRate.ToString());
+        PrevRotateRate[motor - 1] = RotateRate;
+        //Debug.Log(motor.ToString() + " : " + RotateRate.ToString());
     }
 
-    private IEnumerator kaiten(int mode, int motor ,float s)
+    private IEnumerator kaiten(int command)
     {
-        s = Mathf.Abs(s);
-        yield return new WaitForSeconds(0.1f);
-        serialHandler.Write((mode*10 + motor).ToString());
-        Debug.Log((mode * 10 + motor).ToString());
-        Debug.Log(s);
-        yield return new WaitForSeconds(s);
+        int time = command % 10;
+        int motor = command /10 % 10;
+        int mode = command / 100 % 10;
+        serialHandler.Write((mode * 10 + motor).ToString());
+        //Debug.Log(command.ToString() + "  :  " + (mode * 10 + motor).ToString());
+        //Debug.Log(s);
+        //float waittiem = (float)time * speed;
+        yield return new WaitForSeconds(timespeed(command, speed));
         serialHandler.Write((30 + motor).ToString());
-        Debug.Log((30 + motor).ToString());
+        Debug.Log(command.ToString() + "  :  " + (30 + motor).ToString());
     }
+
+    private IEnumerator Send(List<int> cs)
+    {
+        moving = true;
+        float t = 0;
+        foreach (int c in cs)    //モード、モーター、タイム
+        {
+            t = Mathf.Max(t, timespeed(c, speed));
+            Debug.Log("command : " + c.ToString());
+            StartCoroutine(kaiten(c));
+            yield return new WaitForSeconds(0.1f);
+        }
+        yield return new WaitForSeconds(t * speed + cs.Count * 0.1f);
+        Debug.Log(t * speed + cs.Count * 0.1f);
+        yield return new WaitForSeconds(0.1f);
+        serialHandler.Write((31).ToString());
+        yield return new WaitForSeconds(0.1f);
+        serialHandler.Write((32).ToString());
+        yield return new WaitForSeconds(0.1f);
+        serialHandler.Write((33).ToString());
+        yield return new WaitForSeconds(0.1f);
+        serialHandler.Write((34).ToString());
+        yield return new WaitForSeconds(0.1f);
+        serialHandler.Write((35).ToString());
+        yield return new WaitForSeconds(0.1f);
+        serialHandler.Write((36).ToString());
+        commands.Clear();
+        Debug.Log("Clear");
+        moving = false;
+    }
+
+   private  float timespeed(int command, float speed)
+    {
+        int time = command % 10;
+        float ans = 0;
+        if (time == 1) ans = 1.1f;
+        else if (time == 2) ans = 1.2f;
+        else if (time == 3) ans = 1.3f;
+        else if (time == 4) ans = 0.8f;
+        if (command/100%10==2) ans*=1.65f;
+        return ans * (float)time * speed;
+    }
+
 }

@@ -8,7 +8,7 @@ public class SerialHandler : MonoBehaviour
     public delegate void SerialDataReceivedEventHandler(string message);
     public event SerialDataReceivedEventHandler OnDataReceived;
 
-    public string portName = "COM3";
+    public string portName = "COM4";
     public int baudRate = 9600;
 
     private SerialPort serialPort_;
@@ -59,6 +59,25 @@ public class SerialHandler : MonoBehaviour
         {
             serialPort_.Close();
             serialPort_.Dispose();
+        }
+    }
+
+    private void Read()
+    {
+        while (isRunning_ && serialPort_!=null && serialPort_.IsOpen)
+        {
+            try
+            {
+                if (serialPort_.BytesToRead > 0)
+                {
+                    message_ = serialPort_.ReadLine();
+                    isNewMessageReceived_ = true;
+                }
+            }
+            catch(System.Exception e)
+            {
+                Debug.LogWarning(e.Message);
+            }
         }
     }
 
