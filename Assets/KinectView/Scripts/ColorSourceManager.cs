@@ -38,8 +38,24 @@ public class ColorSourceManager : MonoBehaviour
             }
         }
     }
-
     
+    void Update ()
+    {
+        if (_Reader != null) 
+        {
+            var frame = _Reader.AcquireLatestFrame();
+            
+            if (frame != null)
+            {
+                frame.CopyConvertedFrameDataToArray(_Data, ColorImageFormat.Rgba);
+                _Texture.LoadRawTextureData(_Data);
+                _Texture.Apply();
+                
+                frame.Dispose();
+                frame = null;
+            }
+        }
+    }
 
     void OnApplicationQuit()
     {
@@ -59,7 +75,4 @@ public class ColorSourceManager : MonoBehaviour
             _Sensor = null;
         }
     }
-
-
-
 }

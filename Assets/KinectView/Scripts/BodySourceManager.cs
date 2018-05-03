@@ -12,7 +12,8 @@ public class BodySourceManager : MonoBehaviour
     {
         return _Data;
     }
-    
+
+
 
     void Start () 
     {
@@ -28,14 +29,8 @@ public class BodySourceManager : MonoBehaviour
             }
         }   
     }
-
-    public Windows.Kinect.Vector4 FloorClipPlane
-    {
-        get;
-        private set;
-    }
-
-    void Update()
+    
+    void Update () 
     {
         if (_Reader != null)
         {
@@ -46,18 +41,15 @@ public class BodySourceManager : MonoBehaviour
                 {
                     _Data = new Body[_Sensor.BodyFrameSource.BodyCount];
                 }
-
+                
                 frame.GetAndRefreshBodyData(_Data);
-
-                // FloorClipPlaneを取得する
-                FloorClipPlane = frame.FloorClipPlane;
-
+                
                 frame.Dispose();
                 frame = null;
             }
-        }
+        }    
     }
-
+    
     void OnApplicationQuit()
     {
         if (_Reader != null)
@@ -76,4 +68,14 @@ public class BodySourceManager : MonoBehaviour
             _Sensor = null;
         }
     }
+
+    //
+    public KinectSensor Sensor
+    {
+        get
+        {
+            return _Sensor;
+        }
+    }
+    //
 }
